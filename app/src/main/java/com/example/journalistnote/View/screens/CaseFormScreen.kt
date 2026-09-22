@@ -36,7 +36,7 @@ fun CaseFormScreen(
     caseController: CaseController,
     caseId: Long? = null
 ) {
-    // ---------- 1. Estado de cada campo del formulario ----------
+    // se establecen los campos del formlario
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
@@ -49,8 +49,7 @@ fun CaseFormScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    // ---------- 2. Si es edición, observamos el caso existente ----------
-    // (declarado FUERA de cualquier `if`, para poder usarlo también en el botón Guardar)
+    //se utilizara para identificar si se edita o crea un caso
     val caseState = if (caseId != null) {
         val flowState = caseController.getCaseById(caseId).collectAsState(initial = null)
         flowState.value
@@ -58,7 +57,7 @@ fun CaseFormScreen(
         null
     }
 
-    // ---------- 3. Precargamos los campos una sola vez ----------
+    //se cargan los campos del formulario
     LaunchedEffect(caseState) {
         if (caseState != null && !initialized) {
             title = caseState.title
@@ -83,7 +82,7 @@ fun CaseFormScreen(
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
-            // ---------- 4. Campo: título ----------
+            // campo del titulo
             OutlinedTextField(
                 value = title,
                 onValueChange = {
@@ -103,7 +102,7 @@ fun CaseFormScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // ---------- 5. Campo: descripción ----------
+            // campo de la descripcion
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
@@ -113,7 +112,7 @@ fun CaseFormScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // ---------- 6. Campo: fecha ----------
+            // campo de la fecha
             OutlinedTextField(
                 value = date,
                 onValueChange = { date = it },
@@ -123,7 +122,7 @@ fun CaseFormScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // ---------- 7. Campo: estado (dropdown) ----------
+            // campo del estado
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }
@@ -155,7 +154,7 @@ fun CaseFormScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // ---------- 8. Campo: conclusión ----------
+            // campo de la conclusion
             OutlinedTextField(
                 value = conclusion,
                 onValueChange = { conclusion = it },
@@ -165,7 +164,7 @@ fun CaseFormScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ---------- 9. Botón Guardar ----------
+            // se crea el boton guardar
             Button(
                 onClick = {
                     if (title.isBlank()) {
@@ -174,7 +173,7 @@ fun CaseFormScreen(
                     }
                     coroutineScope.launch {
                         if (caseId == null) {
-                            // Modo creación: se envían los campos sueltos
+                            // en caso de crear un caso se envían los campos sueltos
                             caseController.createCase(
                                 title = title,
                                 description = description,
@@ -183,7 +182,7 @@ fun CaseFormScreen(
                                 conclusion = conclusion
                             )
                         } else if (caseState != null) {
-                            // Modo edición: se envía el objeto completo, con su id real
+                            // se envía el objeto completo, con su id real en caso de ser edicion
                             caseController.updateCase(
                                 caseState.copy(
                                     title = title,
