@@ -36,13 +36,8 @@ class MainActivity : ComponentActivity() {
         // entre todas las pantallas de la aplicación.
 
 
+
     }
 }
 
-/**
- * Pantalla principal con barra de navegación inferior.
- *
- * @param caseController Controlador de casos.
- * @param interviewController Controlador de entrevistas.
- */
 
