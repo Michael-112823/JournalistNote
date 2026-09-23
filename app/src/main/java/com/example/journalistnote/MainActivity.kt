@@ -4,39 +4,83 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.List
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.journalistnote.Controller.CaseController
+import com.example.journalistnote.Controller.InterviewController
+import com.example.journalistnote.View.navigation.AppNavigation
 import com.example.journalistnote.ui.theme.JournalistNoteTheme
 
-/**
- * Actividad principal de la aplicación.
- *
- * Responsabilidad:
- * - Configurar el tema visual de la aplicación.
- * - Inicializar los controladores de datos.
- * - Configurar la barra de navegación inferior.
- * - Integrar el sistema de navegación de Compose.
- *
- * Esta actividad actúa como punto de entrada y orquesta
- * la presentación de las diferentes pantallas de la aplicación.
- */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Se instancian los controladores que serán compartidos
-        // entre todas las pantallas de la aplicación.
+        val caseController = CaseController(applicationContext)
+        val interviewController = InterviewController(applicationContext)
 
+        setContent {
+            JournalistNoteTheme {
+                MainScreen(caseController, interviewController)
+            }
+        }
+    }
+}
 
+data class NavItem(val route: String, val label: String, val icon: @Composable () -> Unit)
 
+@Composable
+fun MainScreen(caseController: CaseController, interviewController: InterviewController) {
+    val navController = rememberNavController()
+    val items = listOf(
+        NavItem("home", "Inicio") { Icon(Icons.Rounded.Home, contentDescription = "Inicio") },
+        NavItem("cases", "Casos") { Icon(Icons.Rounded.List, contentDescription = "Casos") }
+    )
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
+                items.forEach { item ->
+                    NavigationBarItem(
+                        icon = item.icon,
+                        label = { Text(item.label) },
+                        selected = currentRoute == item.route,
+                        onClick = {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+
+            }
+        }
+    ) { innerPadding ->
+        AppNavigation(
+            navController = navController,
+            caseController = caseController,
+            interviewController = interviewController,
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }
 

@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -13,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,11 +23,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.journalistnote.Controller.InterviewController
 import kotlinx.coroutines.launch
-// clase que permite la creacion de una nueva entrevista
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +37,6 @@ fun InterviewFormScreen(
     interviewController: InterviewController,
     caseId: Long
 ) {
-    // establecemos los campos del formulario como en el caseForm
     var interviewee by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
@@ -46,10 +49,14 @@ fun InterviewFormScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nueva entrevista") },
+                title = { Text("Nueva entrevista", fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
                 navigationIcon = {
                     TextButton(onClick = { navController.popBackStack() }) {
-                        Text("‹ Volver")
+                        Text("Volver")
                     }
                 }
             )
@@ -61,77 +68,87 @@ fun InterviewFormScreen(
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
-            // campo del entrevistado
             OutlinedTextField(
                 value = interviewee,
                 onValueChange = {
                     interviewee = it
                     intervieweeError = false
                 },
-                label = { Text("Persona entrevistada") },
+                label = { Text("Persona entrevistada *") },
                 isError = intervieweeError,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
-        }
             if (intervieweeError) {
                 Text(
                     "Este campo es obligatorio",
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 4.dp, top = 4.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // campo de la fecha
             OutlinedTextField(
                 value = date,
                 onValueChange = { date = it },
                 label = { Text("Fecha (AAAA-MM-DD)") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // campo de las notas
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
                 label = { Text("Notas") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                minLines = 2
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            //campo de los hallazgos
             OutlinedTextField(
                 value = findings,
                 onValueChange = { findings = it },
                 label = { Text("Hallazgos") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                minLines = 2
             )
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // boton para guardar la infromacion
-        Button(
-            onClick = {
-                if (interviewee.isBlank()) {
-                    intervieweeError = true
-                    return@Button
-                }
-                coroutineScope.launch {
-                    interviewController.createInterview(
-                        caseId = caseId,
-                        interviewee = interviewee,
-                        date = date,
-                        notes = notes,
-                        findings = findings
-                    )
-                    navController.popBackStack()
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Guardar")
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = {
+                    if (interviewee.isBlank()) {
+                        intervieweeError = true
+                        return@Button
+                    }
+                    coroutineScope.launch {
+                        interviewController.createInterview(
+                            caseId = caseId,
+                            interviewee = interviewee,
+                            date = date,
+                            notes = notes,
+                            findings = findings
+                        )
+                        navController.popBackStack()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text("Guardar", fontSize = 16.sp)
+            }
         }
     }
 }

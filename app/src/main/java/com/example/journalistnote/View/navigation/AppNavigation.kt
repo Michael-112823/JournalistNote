@@ -1,6 +1,7 @@
 package com.example.journalistnote.View.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,36 +12,35 @@ import com.example.journalistnote.Controller.InterviewController
 import com.example.journalistnote.View.screens.CaseDetailScreen
 import com.example.journalistnote.View.screens.CaseFormScreen
 import com.example.journalistnote.View.screens.CaseListScreen
+import com.example.journalistnote.View.screens.HomeScreen
 import com.example.journalistnote.View.screens.InterviewFormScreen
-// Esta clase es la que crea la navegacion entre los diferentes screens
+
 @Composable
 fun AppNavigation(
     navController: NavHostController,
     caseController: CaseController,
-    interviewController: InterviewController
+    interviewController: InterviewController,
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
-        startDestination = "home" // para abrir siempre en el dashboard
+        startDestination = "home",
+        modifier = modifier
     ) {
-        // cuando se llame el navegador mostrara el composable correspondiente
-        /*
         composable("home") {
             HomeScreen(
                 navController = navController,
                 caseController = caseController
             )
-        }*/
-        // el listado de casos
-        composable("cases") { //
+        }
+
+        composable("cases") {
             CaseListScreen(
                 navController = navController,
                 caseController = caseController
             )
         }
 
-        // cuando se llame al formulario de caso se envia de una vez el ID vacio
-        // para iniciar con la creacion
         composable("case/create") {
             CaseFormScreen(
                 navController = navController,
@@ -48,9 +48,6 @@ fun AppNavigation(
                 caseId = null
             )
         }
-
-
-        // composable con parametros IA
 
         composable(
             route = "case/{caseId}",

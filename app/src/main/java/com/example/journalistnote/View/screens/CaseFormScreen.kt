@@ -5,15 +5,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,7 +27,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.journalistnote.Controller.CaseController
 import com.example.journalistnote.Model.CaseStatus
@@ -36,7 +42,6 @@ fun CaseFormScreen(
     caseController: CaseController,
     caseId: Long? = null
 ) {
-    // se establecen los campos del formlario
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
@@ -49,7 +54,6 @@ fun CaseFormScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    //se utilizara para identificar si se edita o crea un caso
     val caseState = if (caseId != null) {
         val flowState = caseController.getCaseById(caseId).collectAsState(initial = null)
         flowState.value
@@ -57,7 +61,6 @@ fun CaseFormScreen(
         null
     }
 
-    //se cargan los campos del formulario
     LaunchedEffect(caseState) {
         if (caseState != null && !initialized) {
             title = caseState.title
@@ -72,7 +75,16 @@ fun CaseFormScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (caseId == null) "Nuevo caso" else "Editar caso") }
+                title = {
+                    Text(
+                        if (caseId == null) "Nuevo caso" else "Editar caso",
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
         }
     ) { innerPadding ->
@@ -82,47 +94,49 @@ fun CaseFormScreen(
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
-            // campo del titulo
             OutlinedTextField(
                 value = title,
                 onValueChange = {
                     title = it
                     titleError = false
                 },
-                label = { Text("Título") },
+                label = { Text("Titulo *") },
                 isError = titleError,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
             if (titleError) {
                 Text(
-                    text = "El título es obligatorio",
-                    color = MaterialTheme.colorScheme.error
+                    text = "El titulo es obligatorio",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 4.dp, top = 4.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // campo de la descripcion
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Descripción") },
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("Descripcion") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                minLines = 2
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // campo de la fecha
             OutlinedTextField(
                 value = date,
                 onValueChange = { date = it },
                 label = { Text("Fecha (AAAA-MM-DD)") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // campo del estado
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }
@@ -134,7 +148,9 @@ fun CaseFormScreen(
                     label = { Text("Estado") },
                     modifier = Modifier
                         .menuAnchor()
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
@@ -152,19 +168,19 @@ fun CaseFormScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // campo de la conclusion
             OutlinedTextField(
                 value = conclusion,
                 onValueChange = { conclusion = it },
-                label = { Text("Conclusión") },
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("Conclusion") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                minLines = 2
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // se crea el boton guardar
             Button(
                 onClick = {
                     if (title.isBlank()) {
@@ -173,7 +189,6 @@ fun CaseFormScreen(
                     }
                     coroutineScope.launch {
                         if (caseId == null) {
-                            // en caso de crear un caso se envían los campos sueltos
                             caseController.createCase(
                                 title = title,
                                 description = description,
@@ -182,7 +197,6 @@ fun CaseFormScreen(
                                 conclusion = conclusion
                             )
                         } else if (caseState != null) {
-                            // se envía el objeto completo, con su id real en caso de ser edicion
                             caseController.updateCase(
                                 caseState.copy(
                                     title = title,
@@ -196,9 +210,15 @@ fun CaseFormScreen(
                         navController.popBackStack()
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
             ) {
-                Text("Guardar")
+                Text("Guardar", fontSize = 16.sp)
             }
         }
     }

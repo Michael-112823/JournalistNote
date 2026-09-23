@@ -29,12 +29,4 @@ class InterviewController(context: Context) {
     fun getInterviewsByCaseId(caseId: Long): Flow<List<Interview>> =
         interviewDao.getInterviewsByCaseId(caseId)
 
-    fun getInterviewById(id: Long): Flow<Interview?> =
-        interviewDao.getInterviewById(id)
-
-    suspend fun updateInterview(interview: Interview) =
-        interviewDao.update(interview)
-
-    suspend fun deleteInterview(interview: Interview) =
-        interviewDao.delete(interview)
 }
