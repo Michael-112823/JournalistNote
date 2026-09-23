@@ -55,23 +55,24 @@ fun MainScreen(caseController: CaseController, interviewController: InterviewCon
             NavigationBar {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
+
                 items.forEach { item ->
                     NavigationBarItem(
                         icon = item.icon,
                         label = { Text(item.label) },
                         selected = currentRoute == item.route,
                         onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                            if (currentRoute != item.route) {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        inclusive = false
+                                    }
+                                    launchSingleTop = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
                         }
                     )
                 }
-
             }
         }
     ) { innerPadding ->
